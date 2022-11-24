@@ -1,3 +1,4 @@
-const express = require('express');
-const db = require('./config/connection');
-const routes = require('./routes');
+const User = require('./User');
+const Thought = require('./Thought');
+
+module.exports = { User, Thought };
