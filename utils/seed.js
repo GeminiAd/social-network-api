@@ -12,7 +12,7 @@ connection.once('open', async () => {
   await Thought.deleteMany({});
 
   const thoughts = await Thought.insertMany(thoughtData);
-  //console.log(thoughts[0]);
+  console.log(thoughts[0]);
 
   const users = await User.insertMany(userData);
   users[0].friends.push(users[1]._id);
