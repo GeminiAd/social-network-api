@@ -18,8 +18,19 @@ const reactionSchema = new Schema(
         createdAt: {
             type: Date,
             default: new Date(),
-            get: (v) => v.toLocaleString()
+            get: (v) => `${v.toLocaleDateString()} at ${v.toLocaleTimeString()}`
         }
+    },
+    {
+        _id: false,
+        id: false,
+        toObject: {
+            getters: true
+        },
+        toJSON: {
+            getters: true,
+        },
+        versionKey: false
     }
 );
 
@@ -34,7 +45,7 @@ const thoughtSchema = new Schema(
         createdAt: {
             type: Date,
             default: new Date(),
-            get: (v) => v.toLocaleString()
+            get: (v) => `${v.toLocaleDateString()} at ${v.toLocaleTimeString()}`
         },
         username: {
             type: String,
@@ -43,6 +54,14 @@ const thoughtSchema = new Schema(
         reactions: [reactionSchema]
     },
     {
+        id: false,
+        toObject: {
+            getters: true
+        },
+        toJSON: {
+            getters: true,
+            versionKey: false
+        },
         virtuals: {
             reactionCount: {
                 get() {

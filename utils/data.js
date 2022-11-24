@@ -9,10 +9,18 @@ const userData = [
     }
 ];
 
+const reactionData = [
+    {
+        reactionBody: "Cool thought bro!",
+        username: "ChairmanMiao"
+    }
+];
+
 const thoughtData = [
     {
-        thoughtText: "Test",
+        thoughtText: "Heres a cool thought....",
         username: "GeminiAd",
+        reactions: reactionData
     }
 ];
 
