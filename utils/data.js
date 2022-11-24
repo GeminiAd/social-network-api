@@ -6,6 +6,10 @@ const userData = [
     {
         username: "ChairmanMiao",
         email: "GeminiAd@yahoo.com"
+    },
+    {
+        username: "amiko",
+        email: "amiko@gmail.com"
     }
 ];
 
@@ -21,6 +25,10 @@ const thoughtData = [
         thoughtText: "Heres a cool thought....",
         username: "GeminiAd",
         reactions: reactionData
+    },
+    {
+        thoughtText: "I like thoughts!",
+        username: amiko
     }
 ];
 
