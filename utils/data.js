@@ -32,11 +32,27 @@ const thoughtData = [
     },
     {
         thoughtText: "I like thoughts!",
-        username: "amiko"
+        username: "amiko",
+        reactions: [
+            {
+                reactionBody: "Me too!",
+                username: "GeminiAd"
+            },
+            {
+                reactionBody: "Yeah!!",
+                username: "ChairmanMiao"
+            }
+        ]
     },
     {
         thoughtText: "This API sucks",
-        username: "ChairmanMiao"
+        username: "ChairmanMiao",
+        reactions: [
+            {
+                reactionBody: "Hey, you try building a nice-looking server back-end",
+                username: "GeminiAd"
+            }
+        ]
     },
     {
         thoughtText: "Fire! Fire!",

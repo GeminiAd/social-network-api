@@ -8,10 +8,11 @@ const { User, Thought } = require('../models');
  *      1. First, find a user with the id of userId and find a user with the id of friendId.
  *      2. If we don't have information for both users, send back an informative message with a status code of 400.
  *      3. If we do have information for both users:
- *          a. Push the friend's id into the user's friends array.
- *          b. Push the user's id into the friend's friends array.
- *          c. Update the user and friend's information in the database.
- *          d. Send back the updated user information along with a 200 status code.
+ *          a. If the ID of the friend we are trying to add is already in the friends array, return an informative message.
+ *          b. If not, push the friend's id into the user's friends array.
+ *          c. Push the user's id into the friend's friends array.
+ *          d. Update the user and friend's information in the database.
+ *          e. Send back the updated user information along with a 200 status code.
  */
 function addFriend(req, res) {
     /* 1. First, find a user with the id of userId and find a user with the id of friendId. */
@@ -24,18 +25,23 @@ function addFriend(req, res) {
                 res.status(400).json({ message: "No friend found with that ID!" });
             } else {
                 /* 3. If we do have information for both users: */
-                /* 3. a. Push the friend's id into the user's friends array. */
-                user.friends.push(friend._id);
+                /* 3. a. If the ID of the friend we are trying to add is already in the friends array, return an informative message. */
+                if (user.friends.includes(req.params.friendId)) {
+                    res.status(200).json({ message: "That friend relationship already exists!" });
+                } else {
+                    /* 3. a. Push the friend's id into the user's friends array. */
+                    user.friends.push(friend._id);
 
-                /* 3. b. Push the user's id into the friend's friends array. */
-                friend.friends.push(user._id);
+                    /* 3. b. Push the user's id into the friend's friends array. */
+                    friend.friends.push(user._id);
 
-                /* 3. c. Update the user and friend's information in the database. */
-                await user.save();
-                await friend.save();
+                    /* 3. c. Update the user and friend's information in the database. */
+                    await user.save();
+                    await friend.save();
 
-                /* 3. d. Send back the updated user information along with a 200 status code. */
-                res.status(200).json(user);
+                    /* 3. d. Send back the updated user information along with a 200 status code. */
+                    res.status(200).json(user);
+                }
             }
         })
         .catch((error) => res.status(500).json(error));
@@ -128,18 +134,69 @@ function removeFriend(req, res) {
         .catch((error) => res.status(500).json(error));
 }
 
-/* Updates a user by their user id and returns the new user data. */
+/* 
+ *  Updates a user by their user id and returns the new user data. 
+ *  To update a user we must take the following steps:
+ *      1. Get the user information from the database so we can get the old username.
+ *      2. If no user is found, send an informative message back to the client.
+ *      3. Otherwise:
+ *          a. If the user's username has been updated, we need to change the username of the user's associated thoughts to the updated username.
+ *          b. If the user's username has been updated, we need to change the username of the user's associated reactions to the updated username.
+ *          c. Update the user in the database.
+ *          d. Send back the updated user information to the client.
+ */
 function updateUser(req, res) {
-    User.findOneAndUpdate(
+    /* 1. 1. Get the user information from the database so we can get the old username. */
+    User.findOne(
         {
             _id: req.params.userId
         },
-        req.body,
-        {
-            new: true
-        }
     )
-        .then(user => user ? res.status(200).json(user) : res.status(400).json({ message: "No user found with that ID!" }))
+        .then(async (user) => {
+            /* 2. If no user is found, send an informative message back to the client. */
+            if (!user) {
+                res.status(400).json({ message: "No user found with that ID!" })
+            } else {
+                /* 3. Otherwise: */
+                if (req.body.username) {
+                    /* 3. a. If the user's username has been updated, we need to change the username of the user's associated thoughts to the updated username. */
+                    await Thought.updateMany(
+                        {
+                            _id: user.thoughts
+                        },
+                        {
+                            username: req.body.username
+                        }
+                    );
+
+                    /* 3. b. If the user's username has been updated, we need to change the username of the user's associated reactions to the updated username. */
+                    const thoughts = await Thought.find(
+                        { 'reactions.username': user.username },
+                    );
+
+                    thoughts.forEach(async (thought, data, err) => {
+                        for (const reaction of thought.reactions) {
+                            if (reaction.username === user.username) {
+                                reaction.username = req.body.username;
+                            }
+                        }
+
+                        await thought.save();
+                    });
+
+                    /* 3. c. Update the user in the database. */
+                    const updatedUser = await User.findByIdAndUpdate(req.params.userId,
+                        req.body,
+                        {
+                            new: true
+                        })
+
+                    /* 3. d. Send back the updated user information to the client. */
+                    res.status(200).json(updatedUser);
+                }
+            }
+
+        })
         .catch(error => res.status(500).json(error));
 }
 
