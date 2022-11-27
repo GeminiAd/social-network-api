@@ -20,14 +20,14 @@ function addFriend(req, res) {
         .then(async ([user, friend]) => {
             /* 2. If we don't have information for both users, send back an informative message with a status code of 400. */
             if (!user) {
-                res.status(400).json({ message: "No user found with that ID!" });
+                res.status(404).json({ message: "No user found with that ID!" });
             } else if (!friend) {
-                res.status(400).json({ message: "No friend found with that ID!" });
+                res.status(404).json({ message: "No friend found with that ID!" });
             } else {
                 /* 3. If we do have information for both users: */
                 /* 3. a. If the ID of the friend we are trying to add is already in the friends array, return an informative message. */
                 if (user.friends.includes(req.params.friendId)) {
-                    res.status(200).json({ message: "That friend relationship already exists!" });
+                    res.status(400).json({ message: "That friend relationship already exists!" });
                 } else {
                     /* 3. a. Push the friend's id into the user's friends array. */
                     user.friends.push(friend._id);
@@ -61,7 +61,7 @@ function deleteUser(req, res) {
     })
         .then(async user => {
             if (!user) {
-                res.status(400).json({ message: "No user found with that ID!" });
+                res.status(404).json({ message: "No user found with that ID!" });
             } else {
                 /* Remove the user's associated thoughts. */
                 await Thought.deleteMany({
@@ -114,9 +114,9 @@ function removeFriend(req, res) {
         .then(async ([user, friend]) => {
             /* 2. If either the user or the friend (or both) are null, send back an informative message. */
             if (!user) {
-                res.status(400).json({ message: "No user found with that ID!" });
+                res.status(404).json({ message: "No user found with that ID!" });
             } else if (!friend) {
-                res.status(400).json({ message: "No friend found with that ID!" });
+                res.status(404).json({ message: "No friend found with that ID!" });
             } else {
                 /* 3. If both the user and the friend are valid ids: */
                 /* 3. a. If the id of the friend we are trying to remove isn't in the friends list of the user, send back an informative message. */
@@ -143,6 +143,12 @@ function removeFriend(req, res) {
 
 /* 
  *  Updates a user by their user id and returns the new user data. 
+ *
+ *  NOTE: I was thinking about what would happen if a user changes their username. If a user changes their username
+ *  then every of their thoughts and reactions would have to be updated as well, unless we are expected to let the
+ *  front-end take care of that. It makes more sense to me to have the back-end handle that, as that is what a real
+ *  Social Network API would do (I would expect Facebook to do something like that), so that's what I will do.
+ *
  *  To update a user we must take the following steps:
  *      1. Get the user information from the database so we can get the old username.
  *      2. If no user is found, send an informative message back to the client.
@@ -162,7 +168,7 @@ function updateUser(req, res) {
         .then(async (user) => {
             /* 2. If no user is found, send an informative message back to the client. */
             if (!user) {
-                res.status(400).json({ message: "No user found with that ID!" })
+                res.status(404).json({ message: "No user found with that ID!" })
             } else {
                 /* 3. Otherwise: */
                 if (req.body.username) {
