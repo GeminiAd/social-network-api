@@ -63,9 +63,16 @@ function deleteUser(req, res) {
             if (!user) {
                 res.status(400).json({ message: "No user found with that ID!" });
             } else {
+                /* Remove the user's associated thoughts. */
                 await Thought.deleteMany({
                     _id: user.thoughts
                 });
+
+                /* Remove the user's associated reactions. */
+                await Thought.updateMany(
+                    { 'reactions.username': user.username },
+                    { $pull: { reactions: { username: user.username } } }
+                );
 
                 res.status(200).json({ message: "User and associated thoughts deleted!" });
             }
