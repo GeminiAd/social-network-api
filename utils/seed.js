@@ -12,16 +12,21 @@ connection.once('open', async () => {
   await Thought.deleteMany({});
 
   const thoughts = await Thought.insertMany(thoughtData);
-  console.log(thoughts[0]);
+  //console.log(thoughts[0]);
 
   const users = await User.insertMany(userData);
   users[0].friends.push(users[1]._id);
-  users[0].thoughts.push(thoughts[0]._id);
-  users[1].friends.push(users[0]._id);
+  users[0].thoughts.push(thoughts[0]._id, thoughts[3]._id);
+  users[1].friends.push(users[0]._id, users[2]._id);
+  users[1].thoughts.push(thoughts[2]._id);
+  users[2].friends.push(users[1]._id);
+  users[2].thoughts.push(thoughts[1]._id);
+
   // await User.populate(users, { path: 'friends'})
   //console.log(users);
   await users[0].save();
   await users[1].save();
+  await users[2].save();
 
   // const testUser = await User.findOne({username: "GeminiAd"}).populate(['friends', 'thoughts']);
   // console.log(testUser.toObject({virtuals: true}));

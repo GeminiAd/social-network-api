@@ -1,11 +1,11 @@
 const userData = [
     {
         username: "GeminiAd",
-        email: "musicismytherapy@gmail.com"
+        email: "GeminiAd@yahoo.com"
     },
     {
         username: "ChairmanMiao",
-        email: "GeminiAd@yahoo.com"
+        email: "musicismytherapy@gmail.com"
     },
     {
         username: "amiko",
@@ -17,6 +17,10 @@ const reactionData = [
     {
         reactionBody: "Cool thought bro!",
         username: "ChairmanMiao"
+    },
+    {
+        reactionBody: "Yay! A thought!",
+        username: "amiko"
     }
 ];
 
@@ -28,7 +32,15 @@ const thoughtData = [
     },
     {
         thoughtText: "I like thoughts!",
-        username: amiko
+        username: "amiko"
+    },
+    {
+        thoughtText: "Settle down, Beavis",
+        username: "ChairmanMiao"
+    },
+    {
+        thoughtText: "Fire! Fire!",
+        username: "GeminiAd",
     }
 ];
 
