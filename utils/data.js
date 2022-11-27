@@ -35,12 +35,18 @@ const thoughtData = [
         username: "amiko"
     },
     {
-        thoughtText: "Settle down, Beavis",
+        thoughtText: "This API sucks",
         username: "ChairmanMiao"
     },
     {
         thoughtText: "Fire! Fire!",
         username: "GeminiAd",
+        reactions: [
+            {
+                reactionBody: "Settle down, Beavis.",
+                username: "ChairmanMiao"
+            },
+        ]
     }
 ];
 
