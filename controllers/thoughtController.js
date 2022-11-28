@@ -1,5 +1,12 @@
 const { User, Thought } = require('../models');
 
+/* Create a reaction stored in a single thought's reactions array field */
+function createReaction(req, res) {
+    Thought.findByIdAndUpdate(req.params.thoughtId, { $push: { reactions: req.body } }, { new: true })
+        .then((thought) => thought ? res.status(200).json(thought) : res.status(404).json({ message: "No thought found with that ID!" }))
+        .catch((error) => res.status(500).json(error));
+}
+
 /* Create a thought. */
 /*
  *  When a thought is created we must:
@@ -44,6 +51,32 @@ function createThought(req, res) {
                 } catch (error) {
                     res.status(500).json(error);
                 }
+            }
+        })
+        .catch((error) => res.status(500).json(error));
+}
+
+/* 
+ *  Delete a reaction by its id. 
+ *  
+ *  NOTE: I'm querying the database for information about the thought twice because I didn't know how to make
+ *  a database query to update a reaction and have it return information about both the newly updated thought and
+ *  how many documents were modified in the same result. Thus, I have one call to see if the thoughtId is correct,
+ *  and then another to see if the reactionId is correct and return the updated thought information.
+ */
+function deleteReaction(req, res) {
+    Thought.findById(req.params.thoughtId)
+        .then(async (thought) => {
+            if (!thought) {
+                res.status(404).json({ message: "No thought found with that ID!" });
+            } else {
+                Thought.findOneAndUpdate(
+                    { _id: req.params.thoughtId, 'reactions.reactionId': req.params.reactionId },
+                    { $pull: { reactions: { reactionId: req.params.reactionId } } },
+                    { new: true }
+                )
+                    .then((thought) => thought ? res.status(200).json(thought) : res.status(404).json({ message: "No reaction found with that ID!" }))
+                    .catch((error) => res.status(500).json(error));
             }
         })
         .catch((error) => res.status(500).json(error));
@@ -107,4 +140,4 @@ function updateThought(req, res) {
         .catch((error) => res.status(500).json(error))
 }
 
-module.exports = { createThought, deleteThought, getThought, getThoughts, updateThought };
+module.exports = { createReaction, createThought, deleteReaction, deleteThought, getThought, getThoughts, updateThought };
