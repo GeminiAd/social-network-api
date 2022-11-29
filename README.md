@@ -6,12 +6,11 @@
 <a href="#thought-routes">Thought Routes</a> •
 <a href="#technologies-used">Technologies Used</a> •
 <a href="#concepts-demonstrated">Concepts Demonstrated</a> •
-<a href="#credits">Credits</a> •
 <a href="#author">Author</a>
 
 ---
 
-![Tech Blog Desktop Demo](./images/tech-blog-desktop-demo.gif)
+[YouTube video demo](https://youtu.be/kSqbNP2xTeA)
 
 ---
 
@@ -25,6 +24,14 @@ Since this API isn't deployed, you're going to have to download and run the prog
 
 ## User Routes
 
+<a href="#get-all-users">Get All Users</a> •
+<a href="#get-user-by-id">Get User By Id</a> •
+<a href="#create-a-user">Create a User</a> •
+<a href="#update-a-user">Update a User</a> •
+<a href="#delete-a-user">Delete a User</a> •
+<a href="#add-a-friend">Add a Friend</a> •
+<a href="#remove-a-friend">Remove a Friend</a>
+
 ### Get All Users
 
 Gets information about all users and returns it to the client.
@@ -33,9 +40,14 @@ Gets information about all users and returns it to the client.
 
 GET&emsp;`/api/users`
 
-#### Sample Response
+#### Response
 
-A GET request to `/api/users` should always succeed. This is a sample response:
+A GET request to `/api/users` should always succeed.
+
+Sample Request Path:  
+`http://localhost:3001/api/users/`
+
+Sample Response:
 
 ```json
 [
@@ -85,7 +97,7 @@ Path Parameters
 `userId`&emsp;&emsp;string&emsp;&emsp;&emsp;&emsp;`required`  
 The ID of the user whose information you wish to get. Must be of the [MongoDB ObjectId](https://www.mongodb.com/docs/manual/reference/method/ObjectId/) format.
 
-#### Sample Response
+#### Response
 
 - If the userId isn't a valid MongoDB ObjectId an error is returned.
 
@@ -97,7 +109,12 @@ The ID of the user whose information you wish to get. Must be of the [MongoDB Ob
 }
 ```
 
-- If a user is found with that userId, the user is returned as JSON data along with their associated friends and thoughts:
+- If a user is found with that userId, the user is returned as JSON data along with their associated friends and thoughts.
+
+Sample Request Path:  
+`http://localhost:3001/api/users/6383d5a7996394010dc894ae`
+
+Sample Response:
 
 ```json
 {
@@ -174,9 +191,13 @@ A string representing the desired username. This is required and the username mu
 `email`&emsp;&emsp;string&emsp;&emsp;&emsp;&emsp;`required`  
 The email address of the user to create. This must be a e-mail address of the form someName@someDomain.com.
 
-#### Sample Response
+#### Response
 
-If an invalid request is sent, an error is returned (such as if the email address is invalid). If the request was successful, information about the newly created user is returned:
+- If an invalid request is sent, an error is returned (such as if the email address is invalid).
+- If the request was successful, information about the newly created user is returned.
+
+Sample Request Path:  
+`http://localhost:3001/api/users/`
 
 Sample request body:
 
@@ -223,9 +244,21 @@ A string representing the desired username. This is an optional field, but if in
 `email`&emsp;&emsp;string&emsp;&emsp;&emsp;&emsp;`optional`  
 The email address of the user to create. This must be a e-mail address of the form someName@someDomain.com.
 
-#### Sample Response
+#### Response
 
-If the username is already taken or the email address, an error is sent back to the client. Otherwise, the updated user information is sent back.
+- If the username is already taken or the email address, an error is sent back to the client.
+- If there is no user that matches the userId in the path, a message is sent back to the client:
+
+```json
+{
+  "message": "No user found with that ID!"
+}
+```
+
+- If the userId is valid, the user is updated in the database along with the user's thoughts and reactions, and the updated user information is sent back to the client.
+
+Sample Request Path:  
+`http://localhost:3001/api/users/6383d5a7996394010dc894ae`
 
 Sample Request Body:
 
@@ -259,12 +292,28 @@ DELETE&emsp;`/api/users/{userId}`
 
 #### Parameters
 
+Path Parameters
+
 `userId`&emsp;&emsp;string&emsp;&emsp;&emsp;&emsp;`required`  
 The ID of the user whose information you wish to delete. Must be of the [MongoDB ObjectId](https://www.mongodb.com/docs/manual/reference/method/ObjectId/) format.
 
 #### Response
 
-If userId is not a valid [MongoDB ObjectId](https://www.mongodb.com/docs/manual/reference/method/ObjectId/), an error will be returned. If userId is a valid ObjectId but no user exists with that userId, a message will be sent back saying "No user found with that ID!". If the userId is valid and matches a user in the database, a message will be sent back along with a status code of 200:
+- If userId is not a valid [MongoDB ObjectId](https://www.mongodb.com/docs/manual/reference/method/ObjectId/), an error will be returned.
+- If userId is a valid ObjectId but no user exists with that userId, a message is sent back:
+
+```json
+{
+  "message": "No user found with that ID!"
+}
+```
+
+- If the userId is valid and matches a user in the database, the user is deleted and a message is sent back.
+
+Sample Request Path:  
+`http://localhost:3001/api/users/6383d5a7996394010dc894ae`
+
+Sample Response:
 
 ```json
 {
@@ -293,11 +342,33 @@ The ID of the second user you wish to create a friend relationship between. Must
 #### Response
 
 - If either the friendId or userId aren't valid ObjectIds, an error is returned.
-- If both of those values are valid ObjectIds and at least one of those IDs don't match a user in the database, a message is returned stating that a user can't be found with that ID.
-- If the friend relationship already exists, a message will be sent back to the client and no friend relationship will be created.
+- If userId doesn't match a user in the database, a message is sent back:
+
+```json
+{
+  "message": "No user found with that ID!"
+}
+```
+
+- If friendId doesn't match a user in the database, a message is sent back and nothing is updated:
+
+```json
+{
+  "message": "No friend found with that ID!"
+}
+```
+
+- If the friend relationship already exists, a message will be sent back to the client and no friend relationship will be created:
+
+```json
+{
+  "message": "That friend relationship already exists!"
+}
+```
+
 - If the request is valid, the updated information of the user matching the given userId is returned:
 
-Sample Request Path:
+Sample Request Path:  
 `http://localhost:3001/api/users/6385553a048cf42def3194d9/friends/6385553a048cf42def3194db`
 
 Sample Response:
@@ -334,12 +405,33 @@ The ID of the second user you wish to remove the friend relationship from. Must 
 #### Response
 
 - If either userId or friendId are not valid [MongoDB ObjectIds](https://www.mongodb.com/docs/manual/reference/method/ObjectId/), an error is returned.
-- If the database can't find any user with the ID of userId, a message is sent back stating that.
-- If the database can't find any user with the ID of friendId, a message is sent back stating that.
-- If both userId and friendId match users in the database but the friend relationship doesn't exist, a message is sent back stating that.
+- If the database can't find any user with the ID of userId, a message is sent and nothing is updated:
+
+```json
+{
+  "message": "No user found with that ID!"
+}
+```
+
+- If the database can't find any user with the ID of friendId, a message is sent back and nothing is updated:
+
+```json
+{
+  "message": "No friend found with that ID!"
+}
+```
+
+- If both userId and friendId match users in the database but the friend relationship doesn't exist, a message is sent back stating that and nothing is updated:
+
+```json
+{
+  "message": "That friend relationship doesn't exist!"
+}
+```
+
 - If both the userId and friendId match users in the database and that friend relationship exists, the friend relationship is removed, that information is saved to the database, and the updated user information of the user with the id of userId is returned:
 
-Sample Request Path:
+Sample Request Path:  
 `http://localhost:3001/api/users/6385553a048cf42def3194d9/friends/6385553a048cf42def3194db`
 
 Sample Response:
@@ -357,6 +449,14 @@ Sample Response:
 
 ## Thought Routes
 
+<a href="#get-all-thoughts">Get All Thoughts</a> •
+<a href="#get-thought-by-id">Get Thought By Id</a> •
+<a href="#create-a-thought">Create a Thought</a> •
+<a href="#update-a-thought">Update a Thought</a> •
+<a href="#delete-a-thought">Delete a Thought</a> •
+<a href="#create-a-reaction">Create a Reaction</a> •
+<a href="#delete-a-reaction">Delete a Reaction</a>
+
 ### Get All Thoughts
 
 Gets and returns all thoughts and their reactions.
@@ -369,7 +469,7 @@ GET&emsp;`/api/thoughts`
 
 A GET request to get all thoughts should always succeed, and information about all thoughts is returned.
 
-Sample Request Path:
+Sample Request Path:  
 `http://localhost:3001/api/thoughts/`
 
 Sample Response:
@@ -469,10 +569,17 @@ The ID of the thought you wish to get. Must be of the [MongoDB ObjectId](https:/
 #### Response
 
 - If thoughtId isn't a valid [MongoDB ObjectId](https://www.mongodb.com/docs/manual/reference/method/ObjectId/), an error is returned.
-- If thoughtId is a valid ObjectId but no thoughts have that ID, a message is returned.
-- If thoughtId is a valid ObjectId, the thought and its associated reactions are returned.
+- If thoughtId is a valid ObjectId but no thoughts have that ID, a message is returned and nothing is updated:
 
-Sample Request Path:
+```json
+{
+  "message": "No thought found with that ID!"
+}
+```
+
+- If thoughtId is a valid ObjectId, the thought and its associated reactions are returned:
+
+Sample Request Path:  
 `http://localhost:3001/api/thoughts/`
 
 Sample Response:
@@ -519,11 +626,25 @@ The ID of the user who created the thought. Must be of the [MongoDB ObjectId](ht
 #### Response
 
 - If userId isn't a valid [MongoDB ObjectId](https://www.mongodb.com/docs/manual/reference/method/ObjectId/), an error is returned.
-- If userId is valid but doesn't match any user in the database, a message is returned.
-- If userId is valid and matches a user but the username doesn't match the found user's username, a message is returned and nothing is created.
+- If userId is valid but doesn't match any user in the database, a message is returned and nothing is created:
+
+```json
+{
+  "message": "No user found with that ID!"
+}
+```
+
+- If userId is valid and matches a user but the username doesn't match the found user's username, a message is returned and nothing is created:
+
+```json
+{
+  "message": "The username doesn't match the user with the provided ID!"
+}
+```
+
 - If the userId and username and thoughtText fields are all valid, a new thought is created and information about that thought is returned:
 
-Sample Request Path:
+Sample Request Path:  
 `http://localhost:3001/api/thoughts/`
 
 Sample Request Body:
@@ -572,10 +693,17 @@ The content of the thought to update. Must be a minimum of 1 and maximum of 280 
 #### Response
 
 - If the thoughtId isn't a valid [MongoDB ObjectId](https://www.mongodb.com/docs/manual/reference/method/ObjectId/), an error is returned.
-- If the thoughtId is a valid ObjectId but doesn't match any thoughts in the database, a message is sent back stating that.
+- If the thoughtId is a valid ObjectId but doesn't match any thoughts in the database, a message is sent back and nothing is updated:
+
+```json
+{
+  "message": "No thought found with that ID!"
+}
+```
+
 - If the thoughtId is valid, matches a thought, and thoughtText is at least 1 character and at most 280 characters, the updated thought is returned.
 
-Sample Request Path:
+Sample Request Path:  
 `http://localhost:3001/api/thoughts/6385633f1f9eec713f93c548`
 
 Sample Request Body:
@@ -617,10 +745,17 @@ The ID of the thought you wish to delete. Must be of the [MongoDB ObjectId](http
 #### Response
 
 - If the thoughtId isn't a valid [MongoDB ObjectId](https://www.mongodb.com/docs/manual/reference/method/ObjectId/), an error is sent back.
-- If the thoughtId is a valid ObjectId but doesn't match any thoughts, a message stating that is returned to the client.
-- If the thoughtId is valid and matches a thought that thought is deleted and removed from any user's thoughts array, and a message is sent back to the client.
+- If the thoughtId is a valid ObjectId but doesn't match any thoughts, a message stating that is returned to the client and nothing is deleted:
 
-Sample Request Path:
+```json
+{
+  "message": "No thought found with that ID!"
+}
+```
+
+- If the thoughtId is valid and matches a thought that thought is deleted and removed from any user's thoughts array, and a message is sent back to the client:
+
+Sample Request Path:  
 `http://localhost:3001/api/thoughts/6385633f1f9eec713f93c548`
 
 Sample Response:
@@ -657,10 +792,17 @@ The username of the user that created this reaction.
 #### Response
 
 - If the thoughtId isn't a valid [MongoDB ObjectId](https://www.mongodb.com/docs/manual/reference/method/ObjectId/), an error is returned.
-- If the thought is a valid ObjectId but doesn't match any thoughts in the database, a message is returned to the user stating that.
+- If the thought is a valid ObjectId but doesn't match any thoughts in the database, a message is returned to the user and nothing is created:
+
+```json
+{
+  "message": "No thought found with that ID!"
+}
+```
+
 - If the thoughtId and the reactionBody and username are valid, a new reacion is created for the thought and the updated thought is sent back.
 
-Sample Request Path:
+Sample Request Path:  
 `http://localhost:3001/api/thoughts/63856a241f9eec713f93c552/reactions`
 
 Sample Request Body:
@@ -713,11 +855,25 @@ The ID of the reaction you wish to delete. Must be of the [MongoDB ObjectId](htt
 #### Response
 
 - If either the thoughtId or the reactionId aren't valid [MongoDB ObjectId](https://www.mongodb.com/docs/manual/reference/method/ObjectId/) an error is returned.
-- If the thoughtId is valid but doesn't match any thoughts, a message is sent back stating that.
-- If the thoughtId and reactionId are valid but the reactionId doesn't match any reaction in the thought, a message is sent back stating that.
+- If the thoughtId is valid but doesn't match any thoughts, a message is sent back and nothing is deleted:
+
+```json
+{
+  "message": "No thought found with that ID!"
+}
+```
+
+- If the thoughtId and reactionId are valid but the reactionId doesn't match any reaction in the thought, a message is sent back and nothing is deleted:
+
+```json
+{
+  "message": "No reaction found with that ID!"
+}
+```
+
 - Otherwise, if all parameters are valid, the API removes the reaction from the thought's list of reactions and sends back the updated thought to the client.
 
-Sample Request Path:
+Sample Request Path:  
 `http://localhost:3001/api/thoughts/63856a241f9eec713f93c552/reactions/6385553d1f9eec713f93c535`
 
 Sample Response:
@@ -735,9 +891,10 @@ Sample Response:
 
 ## Technologies Used
 
-- [mongoose](https://mongoosejs.com/) as an interface for a NoSQL [MongoDB Database](https://www.mongodb.com/home).
-- [Express.js](https://expressjs.com/) for the controller.
-- [Node.js](https://nodejs.org/en/)
+- Using [mongoose](https://mongoosejs.com/) as an interface for a NoSQL [MongoDB Database](https://www.mongodb.com/home).
+- Using [Express.js](https://expressjs.com/) as the controller for server routing.
+- Using the [Node.js](https://nodejs.org/en/) JavaScript runtime environment.
+- Programming in [JavaScript](https://www.javascript.com/).
 
 ## Concepts Demonstrated
 
