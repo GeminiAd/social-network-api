@@ -74,6 +74,12 @@ function deleteUser(req, res) {
                     { $pull: { reactions: { username: user.username } } }
                 );
 
+                /* Remove the id of the user from any friends array that has the id in it. */
+                await User.updateMany(
+                    { friends: user._id },
+                    { $pull: { friends: user._id } }
+                );
+
                 res.status(200).json({ message: "User and associated thoughts deleted!" });
             }
         })
@@ -155,8 +161,8 @@ function removeFriend(req, res) {
  *      3. Otherwise:
  *          a. If the user's username has been updated, we need to change the username of the user's associated thoughts to the updated username.
  *          b. If the user's username has been updated, we need to change the username of the user's associated reactions to the updated username.
- *          c. Update the user in the database.
- *          d. Send back the updated user information to the client.
+ *      4. Update the user in the database.
+ *      5. Send back the updated user information to the client.
  */
 function updateUser(req, res) {
     /* 1. 1. Get the user information from the database so we can get the old username. */
@@ -196,17 +202,17 @@ function updateUser(req, res) {
 
                         await thought.save();
                     });
-
-                    /* 3. c. Update the user in the database. */
-                    const updatedUser = await User.findByIdAndUpdate(req.params.userId,
-                        req.body,
-                        {
-                            new: true
-                        })
-
-                    /* 3. d. Send back the updated user information to the client. */
-                    res.status(200).json(updatedUser);
                 }
+
+                /* 4. Update the user in the database. */
+                const updatedUser = await User.findByIdAndUpdate(req.params.userId,
+                    req.body,
+                    {
+                        new: true
+                    })
+
+                /* 5. Send back the updated user information to the client. */
+                res.status(200).json(updatedUser);
             }
 
         })
